@@ -211,30 +211,6 @@
       filter: saturate(.8);
     }
 
-    .progress-dots {
-      position: absolute;
-      z-index: 6;
-      top: max(67px, calc(env(safe-area-inset-top) + 57px));
-      left: 50%;
-      width: min(44vw, 250px);
-      display: grid;
-      grid-template-columns: repeat(13, 1fr);
-      gap: 4px;
-      transform: translateX(-50%);
-      pointer-events: none;
-    }
-
-    .progress-dots span {
-      height: 3px;
-      border-radius: 999px;
-      background: rgba(181, 197, 241, .14);
-    }
-
-    .progress-dots span:first-child {
-      background: linear-gradient(90deg, #61adff, #b1eeff);
-      box-shadow: 0 0 10px rgba(101, 182, 255, .55);
-    }
-
     .stage-head {
       position: absolute;
       z-index: 5;
@@ -289,6 +265,35 @@
       line-height: 1.45;
     }
 
+    .progress-dots {
+      position: absolute;
+      z-index: 6;
+      top: max(67px, calc(env(safe-area-inset-top) + 57px));
+      left: 50%;
+      width: min(44vw, 250px);
+      display: grid;
+      grid-template-columns: repeat(13, 1fr);
+      gap: 4px;
+      transform: translateX(-50%);
+      pointer-events: none;
+    }
+
+    .progress-dots span {
+      height: 3px;
+      border-radius: 999px;
+      background: rgba(181, 197, 241, .14);
+    }
+
+    .progress-dots span.done {
+      background: rgba(91, 176, 255, .48);
+      box-shadow: 0 0 7px rgba(91, 176, 255, .28);
+    }
+
+    .progress-dots span.active {
+      background: linear-gradient(90deg, #61adff, #b1eeff);
+      box-shadow: 0 0 10px rgba(101, 182, 255, .55);
+    }
+
     .scene {
       position: absolute;
       inset: 0;
@@ -296,6 +301,13 @@
       display: grid;
       place-items: center;
       padding: 158px 16px 190px;
+      transition: opacity .55s ease, visibility .55s;
+    }
+
+    .scene.hidden {
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
     }
 
     .star-control {
@@ -530,6 +542,181 @@
         transform: scale(2.5);
         filter: brightness(12);
       }
+    }
+
+    .nebula-stage {
+      position: absolute;
+      inset: 0;
+      z-index: 3;
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+      touch-action: none;
+      transition: opacity .75s ease, visibility .75s;
+    }
+
+    .nebula-stage.show {
+      opacity: 1;
+      visibility: visible;
+      pointer-events: auto;
+    }
+
+    #nebulaCanvas {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+    }
+
+    .nebula-stage.dragging {
+      cursor: grabbing;
+    }
+
+    .nebula-stage.spin-ready::after {
+      content: "";
+      position: absolute;
+      z-index: 0;
+      top: 52%;
+      left: 50%;
+      width: clamp(220px, 68vmin, 420px);
+      aspect-ratio: 1;
+      border: 1px dashed rgba(146, 209, 255, .2);
+      border-radius: 50%;
+      transform: translate(-50%, -50%);
+      animation: orbitHint 7s linear infinite;
+      pointer-events: none;
+    }
+
+    @keyframes orbitHint {
+      to {
+        transform: translate(-50%, -50%) rotate(360deg);
+      }
+    }
+
+    .matter-piece {
+      position: absolute;
+      z-index: 3;
+      top: var(--y);
+      left: var(--x);
+      min-width: 92px;
+      display: grid;
+      grid-template-columns: 28px 1fr;
+      gap: 7px;
+      align-items: center;
+      padding: 8px 10px;
+      border: 1px solid rgba(158, 203, 255, .28);
+      border-radius: 999px;
+      transform: translate(-50%, -50%);
+      background: rgba(9, 15, 40, .76);
+      color: #eaf4ff;
+      box-shadow:
+        0 10px 28px rgba(0, 0, 0, .32),
+        0 0 24px rgba(73, 132, 220, .1);
+      backdrop-filter: blur(13px);
+      -webkit-backdrop-filter: blur(13px);
+      cursor: pointer;
+      transition:
+        top .72s cubic-bezier(.22, .75, .2, 1),
+        left .72s cubic-bezier(.22, .75, .2, 1),
+        opacity .55s ease,
+        transform .72s cubic-bezier(.22, .75, .2, 1);
+      animation: pieceFloat 3.2s ease-in-out infinite alternate;
+    }
+
+    .matter-piece:nth-of-type(2) {
+      animation-delay: -.8s;
+    }
+
+    .matter-piece:nth-of-type(3) {
+      animation-delay: -1.6s;
+    }
+
+    .matter-piece:nth-of-type(4) {
+      animation-delay: -2.4s;
+    }
+
+    .matter-piece:active {
+      scale: .95;
+    }
+
+    .matter-piece.collected {
+      top: 52%;
+      left: 50%;
+      opacity: 0;
+      transform: translate(-50%, -50%) scale(.15);
+      pointer-events: none;
+      animation: none;
+    }
+
+    .matter-symbol {
+      width: 28px;
+      height: 28px;
+      display: grid;
+      place-items: center;
+      border-radius: 50%;
+      background:
+        radial-gradient(
+          circle at 35% 30%,
+          #f6fbff,
+          var(--piece-color) 38%,
+          rgba(44, 83, 150, .28) 72%
+        );
+      box-shadow:
+        0 0 14px
+        color-mix(in srgb, var(--piece-color), transparent 45%);
+      color: #071025;
+      font-size: .66rem;
+      font-weight: 950;
+    }
+
+    .matter-label {
+      font-size: clamp(.64rem, 2.3vw, .76rem);
+      font-weight: 790;
+      line-height: 1.05;
+      white-space: nowrap;
+    }
+
+    @keyframes pieceFloat {
+      from {
+        translate: 0 -5px;
+      }
+
+      to {
+        translate: 0 7px;
+      }
+    }
+
+    .nebula-status {
+      position: absolute;
+      z-index: 2;
+      top: 70%;
+      left: 50%;
+      min-width: 120px;
+      padding: 7px 11px;
+      border: 1px solid rgba(146, 204, 255, .2);
+      border-radius: 999px;
+      opacity: 0;
+      transform: translate(-50%, 8px);
+      background: rgba(4, 9, 28, .72);
+      color: #b9d8ff;
+      font-size: .68rem;
+      font-weight: 850;
+      letter-spacing: .08em;
+      text-align: center;
+      text-transform: uppercase;
+      pointer-events: none;
+      transition: opacity .35s ease, transform .35s ease;
+    }
+
+    .nebula-stage.spin-ready .nebula-status {
+      opacity: 1;
+      transform: translate(-50%, 0);
+    }
+
+    .nebula-stage.completed .nebula-status {
+      color: #8ff0bd;
+      border-color: rgba(92, 224, 163, .24);
     }
 
     .shockwave {
@@ -932,6 +1119,20 @@
       .result-note {
         display: none;
       }
+
+      .matter-piece {
+        min-width: 80px;
+        padding: 6px 8px;
+      }
+
+      .matter-symbol {
+        width: 24px;
+        height: 24px;
+      }
+
+      .nebula-status {
+        top: 73%;
+      }
     }
 
     @media (orientation: landscape) and (max-height: 560px) {
@@ -984,6 +1185,33 @@
       .result-note {
         display: none;
       }
+
+      .nebula-stage.spin-ready::after {
+        top: 54%;
+        left: 48%;
+        width: min(62vh, 330px);
+      }
+
+      .matter-piece {
+        min-width: 82px;
+      }
+
+      .matter-piece.collected {
+        top: 54%;
+        left: 48%;
+      }
+
+      .nebula-status {
+        top: auto;
+        right: 12px;
+        bottom: 74px;
+        left: auto;
+        transform: none;
+      }
+
+      .nebula-stage.spin-ready .nebula-status {
+        transform: none;
+      }
     }
 
     @media (prefers-reduced-motion: reduce) {
@@ -1028,11 +1256,7 @@
           aria-label="Desativar sons"
           title="Ativar ou desativar sons"
         >
-          <span
-            class="sound-symbol"
-            id="soundSymbol"
-            aria-hidden="true"
-          >🔊</span>
+          <span class="sound-symbol" id="soundSymbol" aria-hidden="true">🔊</span>
         </button>
 
         <button
@@ -1058,36 +1282,33 @@
       </div>
     </header>
 
-    <div class="progress-dots" aria-label="Etapa 1 de 13">
-      <span></span>
-      <span></span>
-      <span></span>
-      <span></span>
-      <span></span>
-      <span></span>
-      <span></span>
-      <span></span>
-      <span></span>
-      <span></span>
-      <span></span>
-      <span></span>
-      <span></span>
+    <div class="progress-dots" id="progressDots" aria-label="Etapa 1 de 13">
+      <span class="active"></span>
+      <span></span><span></span><span></span><span></span><span></span>
+      <span></span><span></span><span></span><span></span><span></span>
+      <span></span><span></span>
     </div>
 
     <section class="stage-head" id="stageHead">
-      <div class="stage-count">
+      <div class="stage-count" id="stageCount">
         Etapa 1 de 13 · Antes de 4,6 bilhões de anos
       </div>
 
-      <h1 class="stage-title">Uma estrela antiga</h1>
+      <h1 class="stage-title" id="stageTitle">
+        Uma estrela antiga
+      </h1>
 
-      <p class="stage-intro">
+      <p class="stage-intro" id="stageIntro">
         Antes do Sol e da Terra, outras estrelas já produziam os
         elementos que formariam novos mundos.
       </p>
     </section>
 
-    <section class="scene" aria-label="Estrela antiga interativa">
+    <section
+      class="scene"
+      id="starScene"
+      aria-label="Estrela antiga interativa"
+    >
       <button
         class="star-control"
         id="starControl"
@@ -1130,13 +1351,66 @@
       </button>
     </section>
 
+    <section
+      class="nebula-stage"
+      id="nebulaStage"
+      aria-label="Nebulosa Solar interativa"
+      aria-hidden="true"
+    >
+      <canvas id="nebulaCanvas" aria-hidden="true"></canvas>
+
+      <button
+        class="matter-piece"
+        type="button"
+        data-matter="Hidrogênio"
+        style="--x:20%; --y:41%; --piece-color:#91d7ff"
+      >
+        <span class="matter-symbol">H</span>
+        <span class="matter-label">Hidrogênio</span>
+      </button>
+
+      <button
+        class="matter-piece"
+        type="button"
+        data-matter="Hélio"
+        style="--x:80%; --y:42%; --piece-color:#c0b2ff"
+      >
+        <span class="matter-symbol">He</span>
+        <span class="matter-label">Hélio</span>
+      </button>
+
+      <button
+        class="matter-piece"
+        type="button"
+        data-matter="Poeira mineral"
+        style="--x:20%; --y:66%; --piece-color:#ffc782"
+      >
+        <span class="matter-symbol">✦</span>
+        <span class="matter-label">Poeira mineral</span>
+      </button>
+
+      <button
+        class="matter-piece"
+        type="button"
+        data-matter="Elementos pesados"
+        style="--x:80%; --y:67%; --piece-color:#7de1c1"
+      >
+        <span class="matter-symbol">Fe</span>
+        <span class="matter-label">Outros elementos</span>
+      </button>
+
+      <div class="nebula-status" id="nebulaStatus">
+        Rotação: 0%
+      </div>
+    </section>
+
     <div class="shockwave first" id="shock1" aria-hidden="true"></div>
     <div class="shockwave second" id="shock2" aria-hidden="true"></div>
     <div class="shockwave third" id="shock3" aria-hidden="true"></div>
 
     <aside class="action-dock" id="actionDock" aria-live="polite">
       <div class="action-card">
-        <div class="gesture-icon" aria-hidden="true">
+        <div class="gesture-icon" id="gestureIcon" aria-hidden="true">
           <svg
             viewBox="0 0 24 24"
             fill="none"
@@ -1152,7 +1426,9 @@
         </div>
 
         <div>
-          <p class="action-kicker">Sua ação agora</p>
+          <p class="action-kicker" id="actionKicker">
+            Sua ação agora
+          </p>
 
           <p class="action-title" id="actionTitle">
             Segure a estrela até ela explodir
@@ -1180,17 +1456,17 @@
         Etapa concluída
       </div>
 
-      <h2 class="result-title">
+      <h2 class="result-title" id="resultTitle">
         A matéria-prima dos planetas foi espalhada pelo espaço.
       </h2>
 
-      <p class="result-text">
+      <p class="result-text" id="resultText">
         Estrelas antigas produziram muitos elementos e os espalharam
         ao terminar suas vidas. Esse material passou a fazer parte da
         nuvem que, mais tarde, originou o Sistema Solar.
       </p>
 
-      <p class="result-note">
+      <p class="result-note" id="resultNote">
         Esta cena representa uma estrela massiva. Nem todas as estrelas
         terminam em uma explosão de supernova.
       </p>
@@ -1210,18 +1486,19 @@
       <div class="teaser-content">
         <div class="teaser-orbit" aria-hidden="true"></div>
 
-        <div class="teaser-label">Próxima etapa</div>
+        <div class="teaser-label">
+          Próxima etapa · 3 de 13
+        </div>
 
-        <h2>A Nebulosa Solar</h2>
+        <h2>O nascimento do Sol</h2>
 
         <p>
-          Este primeiro checkpoint termina aqui. Na próxima versão,
-          você reunirá os elementos e colocará a grande nuvem de gás
-          e poeira em movimento.
+          No centro do disco, a pressão e a temperatura aumentarão
+          até o jovem Sol começar a brilhar.
         </p>
 
         <button class="button secondary" id="teaserReplay" type="button">
-          Repetir a estrela antiga
+          Repetir a Nebulosa Solar
         </button>
       </div>
     </section>
@@ -1245,15 +1522,38 @@
       const holdPercent = document.getElementById("holdPercent");
       const holdBar = document.getElementById("holdBar");
 
+      const starScene = document.getElementById("starScene");
+      const nebulaStage = document.getElementById("nebulaStage");
+      const nebulaCanvas = document.getElementById("nebulaCanvas");
+      const nebulaCtx = nebulaCanvas.getContext("2d");
+      const matterPieces = [
+        ...document.querySelectorAll(".matter-piece")
+      ];
+      const nebulaStatus = document.getElementById("nebulaStatus");
+
       const actionDock = document.getElementById("actionDock");
+      const actionKicker = document.getElementById("actionKicker");
       const actionTitle = document.getElementById("actionTitle");
       const actionHelper = document.getElementById("actionHelper");
+      const gestureIcon = document.getElementById("gestureIcon");
 
       const resultCard = document.getElementById("resultCard");
+      const resultTitle = document.getElementById("resultTitle");
+      const resultText = document.getElementById("resultText");
+      const resultNote = document.getElementById("resultNote");
+      const replayButton = document.getElementById("replayButton");
+      const continueButton = document.getElementById("continueButton");
+
       const stageHead = document.getElementById("stageHead");
+      const stageCount = document.getElementById("stageCount");
+      const stageTitle = document.getElementById("stageTitle");
+      const stageIntro = document.getElementById("stageIntro");
+      const progressDots = [
+        ...document.querySelectorAll("#progressDots span")
+      ];
+
       const teaser = document.getElementById("teaser");
       const liveStatus = document.getElementById("liveStatus");
-
       const soundToggle = document.getElementById("soundToggle");
       const soundSymbol = document.getElementById("soundSymbol");
 
@@ -1267,7 +1567,9 @@
       let particles = [];
       let dust = [];
 
+      let currentStage = 1;
       let state = "ready";
+
       let holding = false;
       let holdStart = 0;
       let holdProgress = 0;
@@ -1278,7 +1580,22 @@
       let audioContext = null;
       let chargeOscillator = null;
       let chargeGain = null;
+      let nebulaOscillator = null;
+      let nebulaGain = null;
 
+      let nebulaParticles = [];
+      let nebulaProgress = 0;
+      let collectedMatter = 0;
+      let nebulaPhase = "collect";
+      let nebulaDragging = false;
+      let nebulaPointerId = null;
+      let nebulaLastPointer = null;
+      let nebulaRotation = 0;
+      let nebulaPulse = 0;
+
+      let stageResultTimer = 0;
+      let nebulaTransitionTimer = 0;
+      let nebulaResultTimer = 0;
       let lastFrame = performance.now();
 
       function resizeCanvas() {
@@ -1288,7 +1605,6 @@
 
         canvas.width = Math.round(width * dpr);
         canvas.height = Math.round(height * dpr);
-
         canvas.style.width = `${width}px`;
         canvas.style.height = `${height}px`;
 
@@ -1296,7 +1612,10 @@
 
         const count = Math.max(
           70,
-          Math.min(210, Math.round((width * height) / 6300))
+          Math.min(
+            210,
+            Math.round((width * height) / 6300)
+          )
         );
 
         starfield = Array.from({ length: count }, () => ({
@@ -1308,21 +1627,287 @@
           speed: Math.random() * .0012 + .00035,
           blue: Math.random() > .68
         }));
+
+        resizeNebulaCanvas();
       }
 
-      function createNebulaGlow() {
-        const gradient = ctx.createRadialGradient(
-          width * .5,
-          height * .45,
-          0,
-          width * .5,
-          height * .45,
-          Math.max(width, height) * .48
+      function resizeNebulaCanvas() {
+        nebulaCanvas.width = Math.round(width * dpr);
+        nebulaCanvas.height = Math.round(height * dpr);
+
+        nebulaCanvas.style.width = `${width}px`;
+        nebulaCanvas.style.height = `${height}px`;
+
+        nebulaCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+        createNebulaParticles();
+      }
+
+      function createNebulaParticles() {
+        const amount = Math.max(
+          240,
+          Math.min(
+            520,
+            Math.round((width * height) / 2600)
+          )
         );
 
-        gradient.addColorStop(0, "rgba(37, 70, 155, .11)");
-        gradient.addColorStop(.35, "rgba(34, 34, 102, .055)");
-        gradient.addColorStop(1, "rgba(0, 0, 0, 0)");
+        const maxRadius = Math.min(width, height) * .28;
+
+        const colors = [
+          "#94c9ff",
+          "#b5a6ff",
+          "#f6c892",
+          "#75d9ca",
+          "#dcecff"
+        ];
+
+        nebulaParticles = Array.from(
+          { length: amount },
+          () => {
+            const radius =
+              Math.pow(Math.random(), .58) * maxRadius;
+
+            return {
+              angle: Math.random() * Math.PI * 2,
+              radius,
+              verticalNoise:
+                (Math.random() - .5) *
+                maxRadius *
+                .88,
+              size: .45 + Math.random() * 2.2,
+              alpha: .16 + Math.random() * .66,
+              speed: .0012 + Math.random() * .0034,
+              spiral:
+                (radius / maxRadius) *
+                (2.2 + Math.random() * 1.6),
+              color:
+                colors[
+                  Math.floor(Math.random() * colors.length)
+                ]
+            };
+          }
+        );
+      }
+
+      function getNebulaCenter() {
+        const landscape =
+          width > height && height < 560;
+
+        return {
+          x: width * (landscape ? .48 : .5),
+          y: height * (landscape ? .54 : .52)
+        };
+      }
+
+      function drawNebula(now, dt) {
+        nebulaCtx.clearRect(0, 0, width, height);
+
+        if (currentStage !== 2) {
+          return;
+        }
+
+        const center = getNebulaCenter();
+        const maxRadius = Math.min(width, height) * .3;
+        const progress = Math.max(
+          0,
+          Math.min(1, nebulaProgress)
+        );
+
+        const flatten = .7 - progress * .52;
+        const cloudOpacity =
+          .34 + collectedMatter * .075;
+
+        const pulseScale =
+          1 +
+          Math.sin(now * .004) * .025 +
+          nebulaPulse * .07;
+
+        nebulaPulse *= Math.pow(.955, dt);
+
+        nebulaRotation +=
+          dt * (.0026 + progress * .024);
+
+        const haze =
+          nebulaCtx.createRadialGradient(
+            center.x,
+            center.y,
+            0,
+            center.x,
+            center.y,
+            maxRadius * 1.18 * pulseScale
+          );
+
+        haze.addColorStop(
+          0,
+          `rgba(238,246,255,${.2 + progress * .22})`
+        );
+
+        haze.addColorStop(
+          .13,
+          `rgba(135,177,255,${.2 + progress * .12})`
+        );
+
+        haze.addColorStop(
+          .42,
+          `rgba(76,77,176,${cloudOpacity})`
+        );
+
+        haze.addColorStop(
+          .73,
+          "rgba(90,47,133,.13)"
+        );
+
+        haze.addColorStop(
+          1,
+          "rgba(0,0,0,0)"
+        );
+
+        nebulaCtx.fillStyle = haze;
+        nebulaCtx.beginPath();
+
+        nebulaCtx.ellipse(
+          center.x,
+          center.y,
+          maxRadius * 1.18,
+          maxRadius * (.82 - progress * .43),
+          0,
+          0,
+          Math.PI * 2
+        );
+
+        nebulaCtx.fill();
+        nebulaCtx.save();
+        nebulaCtx.globalCompositeOperation = "lighter";
+
+        for (const particle of nebulaParticles) {
+          const angle =
+            particle.angle +
+            nebulaRotation *
+            particle.speed *
+            360 +
+            particle.spiral *
+            progress;
+
+          const contraction =
+            1 - progress * .13;
+
+          const radius =
+            particle.radius * contraction;
+
+          const randomHeight =
+            particle.verticalNoise *
+            (1 - progress) *
+            .72;
+
+          const x =
+            center.x +
+            Math.cos(angle) *
+            radius;
+
+          const y =
+            center.y +
+            Math.sin(angle) *
+            radius *
+            flatten +
+            randomHeight;
+
+          const depth =
+            .52 +
+            .48 *
+            ((Math.sin(angle) + 1) / 2);
+
+          const alpha =
+            particle.alpha *
+            depth *
+            (.66 + collectedMatter * .085);
+
+          nebulaCtx.globalAlpha =
+            Math.min(1, alpha);
+
+          nebulaCtx.fillStyle =
+            particle.color;
+
+          nebulaCtx.beginPath();
+
+          nebulaCtx.arc(
+            x,
+            y,
+            particle.size *
+            (progress > .7 ? 1.12 : 1),
+            0,
+            Math.PI * 2
+          );
+
+          nebulaCtx.fill();
+        }
+
+        const core =
+          nebulaCtx.createRadialGradient(
+            center.x,
+            center.y,
+            0,
+            center.x,
+            center.y,
+            42 + progress * 35
+          );
+
+        core.addColorStop(
+          0,
+          `rgba(255,255,245,${.38 + progress * .48})`
+        );
+
+        core.addColorStop(
+          .18,
+          `rgba(184,218,255,${.26 + progress * .32})`
+        );
+
+        core.addColorStop(
+          1,
+          "rgba(87,119,255,0)"
+        );
+
+        nebulaCtx.globalAlpha = 1;
+        nebulaCtx.fillStyle = core;
+        nebulaCtx.beginPath();
+
+        nebulaCtx.arc(
+          center.x,
+          center.y,
+          78,
+          0,
+          Math.PI * 2
+        );
+
+        nebulaCtx.fill();
+        nebulaCtx.restore();
+      }
+
+      function createBackgroundGlow() {
+        const gradient =
+          ctx.createRadialGradient(
+            width * .5,
+            height * .45,
+            0,
+            width * .5,
+            height * .45,
+            Math.max(width, height) * .48
+          );
+
+        gradient.addColorStop(
+          0,
+          "rgba(37,70,155,.11)"
+        );
+
+        gradient.addColorStop(
+          .35,
+          "rgba(34,34,102,.055)"
+        );
+
+        gradient.addColorStop(
+          1,
+          "rgba(0,0,0,0)"
+        );
 
         ctx.fillStyle = gradient;
         ctx.fillRect(0, 0, width, height);
@@ -1330,19 +1915,34 @@
 
       function drawSpace(now, dt) {
         ctx.clearRect(0, 0, width, height);
-        createNebulaGlow();
+        createBackgroundGlow();
 
         ctx.save();
 
         for (const star of starfield) {
           const twinkle =
-            .62 + Math.sin(now * star.speed + star.phase) * .38;
+            .62 +
+            Math.sin(
+              now * star.speed + star.phase
+            ) *
+            .38;
 
-          ctx.globalAlpha = star.alpha * twinkle;
-          ctx.fillStyle = star.blue ? "#b9dcff" : "#fff8e5";
+          ctx.globalAlpha =
+            star.alpha * twinkle;
+
+          ctx.fillStyle =
+            star.blue
+              ? "#b9dcff"
+              : "#fff8e5";
 
           ctx.beginPath();
-          ctx.arc(star.x, star.y, star.size, 0, Math.PI * 2);
+          ctx.arc(
+            star.x,
+            star.y,
+            star.size,
+            0,
+            Math.PI * 2
+          );
           ctx.fill();
         }
 
@@ -1352,7 +1952,10 @@
           ctx.save();
           ctx.globalCompositeOperation = "lighter";
 
-          particles = particles.filter((particle) => particle.life > 0);
+          particles =
+            particles.filter(
+              particle => particle.life > 0
+            );
 
           for (const particle of particles) {
             particle.x += particle.vx * dt;
@@ -1360,7 +1963,6 @@
 
             particle.vx *= Math.pow(.994, dt);
             particle.vy *= Math.pow(.994, dt);
-
             particle.life -= dt * particle.decay;
 
             const alpha = Math.max(
@@ -1370,37 +1972,64 @@
 
             const trail = Math.max(
               1,
-              Math.hypot(particle.vx, particle.vy) * 5.5
+              Math.hypot(
+                particle.vx,
+                particle.vy
+              ) *
+              5.5
             );
 
             const velocity =
-              Math.hypot(particle.vx, particle.vy) || 1;
+              Math.hypot(
+                particle.vx,
+                particle.vy
+              ) || 1;
 
             ctx.globalAlpha = alpha;
             ctx.strokeStyle = particle.color;
-            ctx.lineWidth = Math.max(.5, particle.size * alpha);
+
+            ctx.lineWidth = Math.max(
+              .5,
+              particle.size * alpha
+            );
 
             ctx.beginPath();
-            ctx.moveTo(particle.x, particle.y);
-            ctx.lineTo(
-              particle.x - (particle.vx / velocity) * trail,
-              particle.y - (particle.vy / velocity) * trail
+            ctx.moveTo(
+              particle.x,
+              particle.y
             );
-            ctx.stroke();
 
+            ctx.lineTo(
+              particle.x -
+              (particle.vx / velocity) *
+              trail,
+              particle.y -
+              (particle.vy / velocity) *
+              trail
+            );
+
+            ctx.stroke();
             ctx.fillStyle = particle.color;
             ctx.beginPath();
+
             ctx.arc(
               particle.x,
               particle.y,
-              Math.max(.35, particle.size * alpha),
+              Math.max(
+                .35,
+                particle.size * alpha
+              ),
               0,
               Math.PI * 2
             );
+
             ctx.fill();
           }
 
-          dust = dust.filter((particle) => particle.life > 0);
+          dust =
+            dust.filter(
+              particle => particle.life > 0
+            );
 
           for (const particle of dust) {
             particle.x += particle.vx * dt;
@@ -1408,13 +2037,14 @@
 
             particle.vx *= Math.pow(.998, dt);
             particle.vy *= Math.pow(.998, dt);
-
             particle.life -= dt * particle.decay;
 
-            ctx.globalAlpha = Math.max(0, particle.life) * .75;
-            ctx.fillStyle = particle.color;
+            ctx.globalAlpha =
+              Math.max(0, particle.life) * .75;
 
+            ctx.fillStyle = particle.color;
             ctx.beginPath();
+
             ctx.arc(
               particle.x,
               particle.y,
@@ -1422,6 +2052,7 @@
               0,
               Math.PI * 2
             );
+
             ctx.fill();
           }
 
@@ -1438,11 +2069,14 @@
         lastFrame = now;
 
         drawSpace(now, dt);
+        drawNebula(now, dt);
+
         requestAnimationFrame(render);
       }
 
       function getStarCenter() {
-        const rect = starControl.getBoundingClientRect();
+        const rect =
+          starControl.getBoundingClientRect();
 
         return {
           x: rect.left + rect.width / 2,
@@ -1462,10 +2096,12 @@
           "#8ac8ff"
         ];
 
-        const sizeScale = Math.min(width, height) / 720;
+        const sizeScale =
+          Math.min(width, height) / 720;
 
         for (let index = 0; index < 230; index++) {
-          const angle = Math.random() * Math.PI * 2;
+          const angle =
+            Math.random() * Math.PI * 2;
 
           const speed =
             (2.2 + Math.random() * 11.5) *
@@ -1477,37 +2113,60 @@
             vx: Math.cos(angle) * speed,
             vy: Math.sin(angle) * speed,
             size: .8 + Math.random() * 2.4,
-            color: palette[
-              Math.floor(Math.random() * palette.length)
-            ],
+            color:
+              palette[
+                Math.floor(
+                  Math.random() *
+                  palette.length
+                )
+              ],
             life: .75 + Math.random() * .35,
             decay: .0044 + Math.random() * .006
           });
         }
 
         for (let index = 0; index < 150; index++) {
-          const angle = Math.random() * Math.PI * 2;
-          const speed = .25 + Math.random() * 2.8;
+          const angle =
+            Math.random() * Math.PI * 2;
+
+          const speed =
+            .25 + Math.random() * 2.8;
 
           dust.push({
-            x: center.x + (Math.random() - .5) * 22,
-            y: center.y + (Math.random() - .5) * 22,
+            x:
+              center.x +
+              (Math.random() - .5) *
+              22,
+            y:
+              center.y +
+              (Math.random() - .5) *
+              22,
             vx: Math.cos(angle) * speed,
             vy: Math.sin(angle) * speed,
             size: .45 + Math.random() * 1.5,
-            color: palette[
-              2 + Math.floor(Math.random() * 4)
-            ],
+            color:
+              palette[
+                2 +
+                Math.floor(Math.random() * 4)
+              ],
             life: .7 + Math.random() * .3,
             decay: .001 + Math.random() * .002
           });
         }
 
-        for (const id of ["shock1", "shock2", "shock3"]) {
-          const wave = document.getElementById(id);
+        for (const id of [
+          "shock1",
+          "shock2",
+          "shock3"
+        ]) {
+          const wave =
+            document.getElementById(id);
 
-          wave.style.left = `${center.x}px`;
-          wave.style.top = `${center.y}px`;
+          wave.style.left =
+            `${center.x}px`;
+
+          wave.style.top =
+            `${center.y}px`;
 
           wave.classList.remove("play");
 
@@ -1518,21 +2177,40 @@
       }
 
       function setHoldProgress(value) {
-        holdProgress = Math.max(0, Math.min(1, value));
+        holdProgress = Math.max(
+          0,
+          Math.min(1, value)
+        );
 
-        const percent = Math.round(holdProgress * 100);
+        const percent =
+          Math.round(holdProgress * 100);
 
-        holdCircle.style.strokeDashoffset = `${100 - percent}`;
-        holdPercent.textContent = `${percent}%`;
-        holdBar.style.width = `${percent}%`;
+        holdCircle.style.strokeDashoffset =
+          `${100 - percent}`;
 
-        const visualScale = 1 + holdProgress * .13;
-        const brightness = 1 + holdProgress * 1.05;
+        holdPercent.textContent =
+          `${percent}%`;
 
-        starControl.style.scale = visualScale;
-        starControl.style.filter = `brightness(${brightness})`;
+        holdBar.style.width =
+          `${percent}%`;
 
-        if (chargeOscillator && chargeGain && audioContext) {
+        const visualScale =
+          1 + holdProgress * .13;
+
+        const brightness =
+          1 + holdProgress * 1.05;
+
+        starControl.style.scale =
+          visualScale;
+
+        starControl.style.filter =
+          `brightness(${brightness})`;
+
+        if (
+          chargeOscillator &&
+          chargeGain &&
+          audioContext
+        ) {
           chargeOscillator.frequency.setTargetAtTime(
             72 + holdProgress * 205,
             audioContext.currentTime,
@@ -1554,13 +2232,15 @@
 
         if (!audioContext) {
           const AudioContextClass =
-            window.AudioContext || window.webkitAudioContext;
+            window.AudioContext ||
+            window.webkitAudioContext;
 
           if (!AudioContextClass) {
             return false;
           }
 
-          audioContext = new AudioContextClass();
+          audioContext =
+            new AudioContextClass();
         }
 
         if (audioContext.state === "suspended") {
@@ -1577,8 +2257,11 @@
 
         stopChargeSound();
 
-        chargeOscillator = audioContext.createOscillator();
-        chargeGain = audioContext.createGain();
+        chargeOscillator =
+          audioContext.createOscillator();
+
+        chargeGain =
+          audioContext.createGain();
 
         chargeOscillator.type = "sine";
         chargeOscillator.frequency.value = 72;
@@ -1596,7 +2279,7 @@
           try {
             chargeOscillator.stop();
           } catch (error) {
-            /* O oscilador já estava parado. */
+            /* O som já estava parado. */
           }
 
           chargeOscillator.disconnect();
@@ -1608,6 +2291,75 @@
 
         chargeOscillator = null;
         chargeGain = null;
+      }
+
+      function startNebulaSound() {
+        if (
+          !ensureAudio() ||
+          nebulaOscillator
+        ) {
+          return;
+        }
+
+        nebulaOscillator =
+          audioContext.createOscillator();
+
+        nebulaGain =
+          audioContext.createGain();
+
+        nebulaOscillator.type = "triangle";
+
+        nebulaOscillator.frequency.value =
+          54 + nebulaProgress * 95;
+
+        nebulaGain.gain.value = .026;
+
+        nebulaOscillator
+          .connect(nebulaGain)
+          .connect(audioContext.destination);
+
+        nebulaOscillator.start();
+      }
+
+      function updateNebulaSound() {
+        if (
+          !nebulaOscillator ||
+          !nebulaGain ||
+          !audioContext
+        ) {
+          return;
+        }
+
+        nebulaOscillator.frequency.setTargetAtTime(
+          54 + nebulaProgress * 145,
+          audioContext.currentTime,
+          .04
+        );
+
+        nebulaGain.gain.setTargetAtTime(
+          .026 + nebulaProgress * .025,
+          audioContext.currentTime,
+          .05
+        );
+      }
+
+      function stopNebulaSound() {
+        if (nebulaOscillator) {
+          try {
+            nebulaOscillator.stop();
+          } catch (error) {
+            /* O som já estava parado. */
+          }
+
+          nebulaOscillator.disconnect();
+        }
+
+        if (nebulaGain) {
+          nebulaGain.disconnect();
+        }
+
+        nebulaOscillator = null;
+        nebulaGain = null;
       }
 
       function playExplosionSound() {
@@ -1629,15 +2381,21 @@
 
         compressor.connect(audioContext.destination);
 
-        const buffer = audioContext.createBuffer(
-          1,
-          audioContext.sampleRate * duration,
-          audioContext.sampleRate
-        );
+        const buffer =
+          audioContext.createBuffer(
+            1,
+            audioContext.sampleRate * duration,
+            audioContext.sampleRate
+          );
 
-        const data = buffer.getChannelData(0);
+        const data =
+          buffer.getChannelData(0);
 
-        for (let index = 0; index < data.length; index++) {
+        for (
+          let index = 0;
+          index < data.length;
+          index++
+        ) {
           const seconds =
             index / audioContext.sampleRate;
 
@@ -1657,7 +2415,9 @@
             (Math.random() * 2 - 1) *
             (
               initialCrack * .92 +
-              rollingTail * .52 * rumbleShape
+              rollingTail *
+              .52 *
+              rumbleShape
             );
         }
 
@@ -1671,15 +2431,20 @@
           audioContext.createGain();
 
         source.buffer = buffer;
-
         filter.type = "lowpass";
-        filter.frequency.setValueAtTime(2600, now);
+
+        filter.frequency.setValueAtTime(
+          2600,
+          now
+        );
+
         filter.frequency.exponentialRampToValueAtTime(
           115,
           now + duration
         );
 
         gain.gain.setValueAtTime(.42, now);
+
         gain.gain.exponentialRampToValueAtTime(
           .001,
           now + duration
@@ -1700,13 +2465,21 @@
 
         boom.type = "sine";
 
-        boom.frequency.setValueAtTime(108, now);
+        boom.frequency.setValueAtTime(
+          108,
+          now
+        );
+
         boom.frequency.exponentialRampToValueAtTime(
           27,
           now + 1.75
         );
 
-        boomGain.gain.setValueAtTime(.0001, now);
+        boomGain.gain.setValueAtTime(
+          .0001,
+          now
+        );
+
         boomGain.gain.exponentialRampToValueAtTime(
           .5,
           now + .018
@@ -1744,7 +2517,11 @@
 
         body.detune.setValueAtTime(-9, now);
 
-        bodyGain.gain.setValueAtTime(.0001, now);
+        bodyGain.gain.setValueAtTime(
+          .0001,
+          now
+        );
+
         bodyGain.gain.exponentialRampToValueAtTime(
           .22,
           now + .045
@@ -1773,9 +2550,17 @@
 
         crack.buffer = buffer;
         crackFilter.type = "highpass";
-        crackFilter.frequency.setValueAtTime(850, now);
 
-        crackGain.gain.setValueAtTime(.2, now);
+        crackFilter.frequency.setValueAtTime(
+          850,
+          now
+        );
+
+        crackGain.gain.setValueAtTime(
+          .2,
+          now
+        );
+
         crackGain.gain.exponentialRampToValueAtTime(
           .001,
           now + .24
@@ -1796,6 +2581,7 @@
         }
 
         const now = audioContext.currentTime;
+
         const oscillator =
           audioContext.createOscillator();
 
@@ -1803,13 +2589,22 @@
           audioContext.createGain();
 
         oscillator.type = "sine";
-        oscillator.frequency.setValueAtTime(520, now);
+
+        oscillator.frequency.setValueAtTime(
+          520,
+          now
+        );
+
         oscillator.frequency.exponentialRampToValueAtTime(
           760,
           now + .12
         );
 
-        gain.gain.setValueAtTime(.0001, now);
+        gain.gain.setValueAtTime(
+          .0001,
+          now
+        );
+
         gain.gain.exponentialRampToValueAtTime(
           .07,
           now + .012
@@ -1828,16 +2623,614 @@
         oscillator.stop(now + .2);
       }
 
-      function beginHold(event) {
-        if (state !== "ready" || holding) {
+      function playMatterSound(index) {
+        if (!ensureAudio()) {
           return;
         }
 
-        if (event && event.type === "pointerdown") {
+        const now = audioContext.currentTime;
+
+        const oscillator =
+          audioContext.createOscillator();
+
+        const gain =
+          audioContext.createGain();
+
+        oscillator.type = "sine";
+
+        oscillator.frequency.setValueAtTime(
+          260 + index * 75,
+          now
+        );
+
+        oscillator.frequency.exponentialRampToValueAtTime(
+          430 + index * 95,
+          now + .24
+        );
+
+        gain.gain.setValueAtTime(
+          .0001,
+          now
+        );
+
+        gain.gain.exponentialRampToValueAtTime(
+          .075,
+          now + .018
+        );
+
+        gain.gain.exponentialRampToValueAtTime(
+          .0001,
+          now + .3
+        );
+
+        oscillator
+          .connect(gain)
+          .connect(audioContext.destination);
+
+        oscillator.start(now);
+        oscillator.stop(now + .32);
+      }
+
+      function playNebulaCompletionSound() {
+        if (!ensureAudio()) {
+          return;
+        }
+
+        const now = audioContext.currentTime;
+
+        const master =
+          audioContext.createGain();
+
+        master.gain.setValueAtTime(
+          .0001,
+          now
+        );
+
+        master.gain.exponentialRampToValueAtTime(
+          .16,
+          now + .06
+        );
+
+        master.gain.exponentialRampToValueAtTime(
+          .001,
+          now + 1.75
+        );
+
+        master.connect(audioContext.destination);
+
+        [110, 165, 247].forEach(
+          (frequency, index) => {
+            const oscillator =
+              audioContext.createOscillator();
+
+            const gain =
+              audioContext.createGain();
+
+            oscillator.type =
+              index === 0
+                ? "sine"
+                : "triangle";
+
+            oscillator.frequency.setValueAtTime(
+              frequency,
+              now
+            );
+
+            oscillator.frequency.exponentialRampToValueAtTime(
+              frequency * 1.72,
+              now + 1.35
+            );
+
+            gain.gain.value =
+              index === 0 ? .62 : .24;
+
+            oscillator
+              .connect(gain)
+              .connect(master);
+
+            oscillator.start(
+              now + index * .035
+            );
+
+            oscillator.stop(
+              now + 1.8
+            );
+          }
+        );
+      }
+
+      function setProgressStage(stage) {
+        progressDots.forEach((dot, index) => {
+          dot.classList.toggle(
+            "done",
+            index < stage - 1
+          );
+
+          dot.classList.toggle(
+            "active",
+            index === stage - 1
+          );
+        });
+
+        document
+          .getElementById("progressDots")
+          .setAttribute(
+            "aria-label",
+            `Etapa ${stage} de 13`
+          );
+      }
+
+      function setGestureIcon(mode) {
+        if (mode === "rotate") {
+          gestureIcon.innerHTML = `
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M19 7v4h-4"></path>
+              <path d="M18.2 10A7 7 0 1 0 19 15"></path>
+              <path d="m15 11 4-4"></path>
+            </svg>
+          `;
+
+          return;
+        }
+
+        gestureIcon.innerHTML = `
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M9.5 11V5.8a1.7 1.7 0 0 1 3.4 0V10"></path>
+            <path d="M12.9 9V4.7a1.6 1.6 0 0 1 3.2 0v5.6"></path>
+            <path d="M16.1 9.1V6a1.5 1.5 0 0 1 3 0v7c0 4.1-2.5 7-6.8 7H11c-2 0-3.2-.6-4.4-2.1l-3.2-4a1.7 1.7 0 0 1 2.5-2.3L8 13.4V8.1a1.5 1.5 0 0 1 3 0v2.4"></path>
+          </svg>
+        `;
+      }
+
+      function setStageOneCopy() {
+        stageCount.textContent =
+          "Etapa 1 de 13 · Antes de 4,6 bilhões de anos";
+
+        stageTitle.textContent =
+          "Uma estrela antiga";
+
+        stageIntro.textContent =
+          "Antes do Sol e da Terra, outras estrelas já produziam os elementos que formariam novos mundos.";
+
+        resultTitle.textContent =
+          "A matéria-prima dos planetas foi espalhada pelo espaço.";
+
+        resultText.textContent =
+          "Estrelas antigas produziram muitos elementos e os espalharam ao terminar suas vidas. Esse material passou a fazer parte da nuvem que, mais tarde, originou o Sistema Solar.";
+
+        resultNote.textContent =
+          "Esta cena representa uma estrela massiva. Nem todas as estrelas terminam em uma explosão de supernova.";
+      }
+
+      function setStageTwoCopy() {
+        stageCount.textContent =
+          "Etapa 2 de 13 · Há cerca de 4,6 bilhões de anos";
+
+        stageTitle.textContent =
+          "A Nebulosa Solar";
+
+        stageIntro.textContent =
+          "Gás e poeira de diferentes origens formavam uma imensa nuvem no espaço.";
+      }
+
+      function startStageTwo() {
+        clearTimeout(stageResultTimer);
+
+        resultCard.classList.remove("show");
+        resultCard.setAttribute(
+          "aria-hidden",
+          "true"
+        );
+
+        actionDock.classList.add("hidden");
+        stageHead.style.opacity = "0";
+
+        nebulaTransitionTimer =
+          setTimeout(() => {
+            resetStageTwo();
+          }, 360);
+      }
+
+      function resetStageTwo() {
+        clearTimeout(nebulaTransitionTimer);
+        clearTimeout(nebulaResultTimer);
+
+        stopChargeSound();
+        stopNebulaSound();
+
+        currentStage = 2;
+        state = "stage2";
+        holding = false;
+
+        nebulaPhase = "collect";
+        nebulaDragging = false;
+        nebulaPointerId = null;
+        nebulaLastPointer = null;
+        collectedMatter = 0;
+        nebulaProgress = 0;
+        nebulaRotation = 0;
+        nebulaPulse = 1;
+
+        particles = [];
+        dust = [];
+
+        app.classList.remove(
+          "charging",
+          "exploding"
+        );
+
+        starScene.classList.add("hidden");
+
+        nebulaStage.classList.remove(
+          "spin-ready",
+          "completed",
+          "dragging"
+        );
+
+        nebulaStage.classList.add("show");
+
+        nebulaStage.setAttribute(
+          "aria-hidden",
+          "false"
+        );
+
+        matterPieces.forEach(piece => {
+          piece.classList.remove("collected");
+        });
+
+        createNebulaParticles();
+        setStageTwoCopy();
+        setProgressStage(2);
+        setGestureIcon("tap");
+
+        stageHead.style.opacity = "1";
+
+        actionKicker.textContent =
+          "Primeiro passo · 1 de 2";
+
+        actionTitle.textContent =
+          "Toque nos materiais ao redor da nuvem";
+
+        actionHelper.textContent =
+          "Reúna hidrogênio, hélio, poeira e outros elementos.";
+
+        holdBar.style.width = "0%";
+        actionDock.classList.remove("hidden");
+
+        resultCard.classList.remove("show");
+
+        resultCard.setAttribute(
+          "aria-hidden",
+          "true"
+        );
+
+        teaser.classList.remove("show");
+
+        teaser.setAttribute(
+          "aria-hidden",
+          "true"
+        );
+
+        nebulaStatus.textContent =
+          "Rotação: 0%";
+
+        liveStatus.textContent =
+          "Etapa 2. Toque nos quatro materiais ao redor da Nebulosa Solar.";
+      }
+
+      function collectMatter(piece) {
+        if (
+          currentStage !== 2 ||
+          nebulaPhase !== "collect" ||
+          piece.classList.contains("collected")
+        ) {
+          return;
+        }
+
+        piece.classList.add("collected");
+
+        collectedMatter += 1;
+        nebulaPulse = 1;
+
+        holdBar.style.width =
+          `${collectedMatter * 25}%`;
+
+        actionHelper.textContent =
+          `${collectedMatter} de 4 materiais reunidos.`;
+
+        playMatterSound(collectedMatter);
+
+        if (navigator.vibrate) {
+          navigator.vibrate(45);
+        }
+
+        liveStatus.textContent =
+          `${piece.dataset.matter} reunido à nuvem. ${collectedMatter} de 4.`;
+
+        if (
+          collectedMatter ===
+          matterPieces.length
+        ) {
+          actionTitle.textContent =
+            "Os materiais estão reunidos";
+
+          actionHelper.textContent =
+            "Agora observe a gravidade aproximando tudo.";
+
+          nebulaTransitionTimer =
+            setTimeout(
+              startSpinPhase,
+              760
+            );
+        }
+      }
+
+      function startSpinPhase() {
+        if (
+          currentStage !== 2 ||
+          nebulaPhase !== "collect" ||
+          collectedMatter <
+          matterPieces.length
+        ) {
+          return;
+        }
+
+        nebulaPhase = "spin";
+        nebulaProgress = 0;
+
+        nebulaStage.classList.add(
+          "spin-ready"
+        );
+
+        setGestureIcon("rotate");
+
+        actionKicker.textContent =
+          "Segundo passo · 2 de 2";
+
+        actionTitle.textContent =
+          "Arraste o dedo pela nuvem para fazê-la girar";
+
+        actionHelper.textContent =
+          "Faça vários movimentos até completar a rotação.";
+
+        holdBar.style.width = "0%";
+
+        nebulaStatus.textContent =
+          "Rotação: 0%";
+
+        liveStatus.textContent =
+          "Agora arraste o dedo pela nuvem para aumentar sua rotação.";
+      }
+
+      function beginNebulaDrag(event) {
+        if (
+          currentStage !== 2 ||
+          nebulaPhase !== "spin" ||
+          event.target.closest(".matter-piece")
+        ) {
+          return;
+        }
+
+        event.preventDefault();
+
+        nebulaDragging = true;
+        nebulaPointerId = event.pointerId;
+
+        nebulaLastPointer = {
+          x: event.clientX,
+          y: event.clientY
+        };
+
+        nebulaStage.classList.add("dragging");
+
+        try {
+          nebulaStage.setPointerCapture(
+            event.pointerId
+          );
+        } catch (error) {
+          /* Alguns navegadores não oferecem captura do ponteiro. */
+        }
+
+        startNebulaSound();
+      }
+
+      function moveNebulaDrag(event) {
+        if (
+          !nebulaDragging ||
+          event.pointerId !== nebulaPointerId ||
+          nebulaPhase !== "spin"
+        ) {
+          return;
+        }
+
+        event.preventDefault();
+
+        const dx =
+          event.clientX -
+          nebulaLastPointer.x;
+
+        const dy =
+          event.clientY -
+          nebulaLastPointer.y;
+
+        const distance =
+          Math.hypot(dx, dy);
+
+        nebulaLastPointer = {
+          x: event.clientX,
+          y: event.clientY
+        };
+
+        if (distance < 1) {
+          return;
+        }
+
+        nebulaProgress = Math.min(
+          1,
+          nebulaProgress +
+          distance / 820
+        );
+
+        nebulaRotation +=
+          distance * .012;
+
+        nebulaPulse = Math.min(
+          1,
+          nebulaPulse +
+          distance / 220
+        );
+
+        const percent =
+          Math.round(nebulaProgress * 100);
+
+        holdBar.style.width =
+          `${percent}%`;
+
+        nebulaStatus.textContent =
+          `Rotação: ${percent}%`;
+
+        actionHelper.textContent =
+          percent < 70
+            ? `Rotação em ${percent}%. Continue arrastando.`
+            : "A nuvem está se achatando e formando um disco!";
+
+        updateNebulaSound();
+
+        if (nebulaProgress >= 1) {
+          completeNebula();
+        }
+      }
+
+      function endNebulaDrag(event) {
+        if (
+          !nebulaDragging ||
+          (
+            event &&
+            event.pointerId !== nebulaPointerId
+          )
+        ) {
+          return;
+        }
+
+        nebulaDragging = false;
+        nebulaPointerId = null;
+        nebulaLastPointer = null;
+
+        nebulaStage.classList.remove(
+          "dragging"
+        );
+
+        stopNebulaSound();
+      }
+
+      function completeNebula() {
+        if (nebulaPhase !== "spin") {
+          return;
+        }
+
+        nebulaPhase = "complete";
+        nebulaProgress = 1;
+        nebulaPulse = 1;
+
+        endNebulaDrag();
+
+        nebulaStage.classList.add(
+          "completed"
+        );
+
+        nebulaStatus.textContent =
+          "Disco em formação";
+
+        actionTitle.textContent =
+          "A Nebulosa Solar entrou em colapso";
+
+        actionHelper.textContent =
+          "A gravidade concentrou a matéria e a rotação formou um disco.";
+
+        actionDock.classList.add("hidden");
+
+        playNebulaCompletionSound();
+
+        if (navigator.vibrate) {
+          navigator.vibrate([
+            90,
+            35,
+            150,
+            45,
+            240
+          ]);
+        }
+
+        liveStatus.textContent =
+          "A Nebulosa Solar se contraiu e formou um disco em rotação.";
+
+        resultTitle.textContent =
+          "A nuvem começou a se transformar em um disco.";
+
+        resultText.textContent =
+          "A gravidade puxou o material para regiões mais densas. Enquanto encolhia, a Nebulosa Solar girava cada vez mais rápido e se achatava. No centro, acumulou-se quase toda a matéria que formaria o Sol.";
+
+        resultNote.textContent =
+          "A nuvem era formada principalmente por hidrogênio e hélio, além de uma pequena quantidade de poeira e outros elementos.";
+
+        replayButton.textContent =
+          "Repetir etapa";
+
+        continueButton.textContent =
+          "Continuar";
+
+        nebulaResultTimer =
+          setTimeout(() => {
+            stageHead.style.opacity = ".25";
+
+            resultCard.classList.add(
+              "show"
+            );
+
+            resultCard.setAttribute(
+              "aria-hidden",
+              "false"
+            );
+          }, 1250);
+      }
+
+      function showNextTeaser() {
+        resultCard.classList.remove("show");
+
+        resultCard.setAttribute(
+          "aria-hidden",
+          "true"
+        );
+
+        teaser.classList.add("show");
+
+        teaser.setAttribute(
+          "aria-hidden",
+          "false"
+        );
+
+        liveStatus.textContent =
+          "Próxima etapa: o nascimento do Sol.";
+      }
+
+      function beginHold(event) {
+        if (
+          state !== "ready" ||
+          holding
+        ) {
+          return;
+        }
+
+        if (
+          event &&
+          event.type === "pointerdown"
+        ) {
           event.preventDefault();
 
           try {
-            starControl.setPointerCapture(event.pointerId);
+            starControl.setPointerCapture(
+              event.pointerId
+            );
           } catch (error) {
             /* Alguns navegadores não oferecem captura do ponteiro. */
           }
@@ -1846,25 +3239,33 @@
         cancelAnimationFrame(resetFrame);
 
         holding = true;
+
         holdStart =
           performance.now() -
-          holdProgress * HOLD_DURATION;
+          holdProgress *
+          HOLD_DURATION;
 
         app.classList.add("charging");
 
-        actionTitle.textContent = "Continue segurando…";
+        actionTitle.textContent =
+          "Continue segurando…";
+
         actionHelper.textContent =
           "A estrela está ficando instável.";
 
         startChargeSound();
 
         function update(now) {
-          if (!holding || state !== "ready") {
+          if (
+            !holding ||
+            state !== "ready"
+          ) {
             return;
           }
 
           const progress =
-            (now - holdStart) / HOLD_DURATION;
+            (now - holdStart) /
+            HOLD_DURATION;
 
           setHoldProgress(progress);
 
@@ -1873,14 +3274,19 @@
             return;
           }
 
-          holdFrame = requestAnimationFrame(update);
+          holdFrame =
+            requestAnimationFrame(update);
         }
 
-        holdFrame = requestAnimationFrame(update);
+        holdFrame =
+          requestAnimationFrame(update);
       }
 
       function cancelHold(event) {
-        if (!holding || state !== "ready") {
+        if (
+          !holding ||
+          state !== "ready"
+        ) {
           return;
         }
 
@@ -1911,7 +3317,10 @@
         const start = performance.now();
 
         function rewind(now) {
-          if (holding || state !== "ready") {
+          if (
+            holding ||
+            state !== "ready"
+          ) {
             return;
           }
 
@@ -1921,15 +3330,18 @@
           );
 
           setHoldProgress(
-            initial * Math.pow(1 - progress, 3)
+            initial *
+            Math.pow(1 - progress, 3)
           );
 
           if (progress < 1) {
-            resetFrame = requestAnimationFrame(rewind);
+            resetFrame =
+              requestAnimationFrame(rewind);
           }
         }
 
-        resetFrame = requestAnimationFrame(rewind);
+        resetFrame =
+          requestAnimationFrame(rewind);
       }
 
       function explode() {
@@ -1942,13 +3354,14 @@
 
         cancelAnimationFrame(holdFrame);
         stopChargeSound();
-
         setHoldProgress(1);
 
         app.classList.remove("charging");
         app.classList.add("exploding");
 
-        actionTitle.textContent = "Explosão iniciada";
+        actionTitle.textContent =
+          "Explosão iniciada";
+
         actionHelper.textContent =
           "Observe os elementos sendo lançados ao espaço.";
 
@@ -1972,15 +3385,35 @@
         liveStatus.textContent =
           "A estrela explodiu e espalhou elementos pelo espaço.";
 
-        setTimeout(() => {
-          stageHead.style.opacity = ".25";
+        setStageOneCopy();
 
-          resultCard.classList.add("show");
-          resultCard.setAttribute("aria-hidden", "false");
-        }, 1900);
+        replayButton.textContent =
+          "Ver novamente";
+
+        continueButton.textContent =
+          "Continuar";
+
+        stageResultTimer =
+          setTimeout(() => {
+            stageHead.style.opacity = ".25";
+
+            resultCard.classList.add(
+              "show"
+            );
+
+            resultCard.setAttribute(
+              "aria-hidden",
+              "false"
+            );
+          }, 1900);
       }
 
       function resetExperience() {
+        clearTimeout(stageResultTimer);
+        clearTimeout(nebulaTransitionTimer);
+        clearTimeout(nebulaResultTimer);
+
+        currentStage = 1;
         state = "ready";
         holding = false;
 
@@ -1988,13 +3421,47 @@
         cancelAnimationFrame(resetFrame);
 
         stopChargeSound();
+        stopNebulaSound();
 
         particles = [];
         dust = [];
 
+        nebulaProgress = 0;
+        collectedMatter = 0;
+        nebulaPhase = "collect";
+        nebulaDragging = false;
+
         setHoldProgress(0);
 
-        app.classList.remove("charging", "exploding");
+        app.classList.remove(
+          "charging",
+          "exploding"
+        );
+
+        starScene.classList.remove("hidden");
+
+        nebulaStage.classList.remove(
+          "show",
+          "spin-ready",
+          "completed",
+          "dragging"
+        );
+
+        nebulaStage.setAttribute(
+          "aria-hidden",
+          "true"
+        );
+
+        matterPieces.forEach(piece => {
+          piece.classList.remove("collected");
+        });
+
+        setStageOneCopy();
+        setProgressStage(1);
+        setGestureIcon("tap");
+
+        actionKicker.textContent =
+          "Sua ação agora";
 
         actionTitle.textContent =
           "Segure a estrela até ela explodir";
@@ -2005,23 +3472,29 @@
         actionDock.classList.remove("hidden");
 
         resultCard.classList.remove("show");
-        resultCard.setAttribute("aria-hidden", "true");
+
+        resultCard.setAttribute(
+          "aria-hidden",
+          "true"
+        );
 
         teaser.classList.remove("show");
-        teaser.setAttribute("aria-hidden", "true");
+
+        teaser.setAttribute(
+          "aria-hidden",
+          "true"
+        );
 
         stageHead.style.opacity = "1";
 
+        replayButton.textContent =
+          "Ver novamente";
+
+        continueButton.textContent =
+          "Continuar";
+
         liveStatus.textContent =
           "Experiência reiniciada. Segure a estrela.";
-      }
-
-      function showTeaser() {
-        resultCard.classList.remove("show");
-        resultCard.setAttribute("aria-hidden", "true");
-
-        teaser.classList.add("show");
-        teaser.setAttribute("aria-hidden", "false");
       }
 
       function toggleSound() {
@@ -2044,6 +3517,7 @@
 
         if (!soundEnabled) {
           stopChargeSound();
+          stopNebulaSound();
         }
 
         if (soundEnabled) {
@@ -2073,15 +3547,17 @@
 
       starControl.addEventListener(
         "contextmenu",
-        (event) => event.preventDefault()
+        event => event.preventDefault()
       );
 
       starControl.addEventListener(
         "keydown",
-        (event) => {
+        event => {
           if (
-            (event.code === "Space" ||
-              event.code === "Enter") &&
+            (
+              event.code === "Space" ||
+              event.code === "Enter"
+            ) &&
             !event.repeat
           ) {
             event.preventDefault();
@@ -2092,7 +3568,7 @@
 
       starControl.addEventListener(
         "keyup",
-        (event) => {
+        event => {
           if (
             event.code === "Space" ||
             event.code === "Enter"
@@ -2103,21 +3579,78 @@
         }
       );
 
-      document
-        .getElementById("replayButton")
-        .addEventListener("click", resetExperience);
+      matterPieces.forEach(piece => {
+        piece.addEventListener(
+          "click",
+          () => collectMatter(piece)
+        );
+      });
+
+      nebulaStage.addEventListener(
+        "pointerdown",
+        beginNebulaDrag
+      );
+
+      nebulaStage.addEventListener(
+        "pointermove",
+        moveNebulaDrag
+      );
+
+      nebulaStage.addEventListener(
+        "pointerup",
+        endNebulaDrag
+      );
+
+      nebulaStage.addEventListener(
+        "pointercancel",
+        endNebulaDrag
+      );
+
+      nebulaStage.addEventListener(
+        "lostpointercapture",
+        endNebulaDrag
+      );
+
+      nebulaStage.addEventListener(
+        "contextmenu",
+        event => event.preventDefault()
+      );
+
+      replayButton.addEventListener(
+        "click",
+        () => {
+          if (currentStage === 1) {
+            resetExperience();
+          } else {
+            resetStageTwo();
+          }
+        }
+      );
 
       document
         .getElementById("resetTop")
-        .addEventListener("click", resetExperience);
+        .addEventListener(
+          "click",
+          resetExperience
+        );
 
-      document
-        .getElementById("continueButton")
-        .addEventListener("click", showTeaser);
+      continueButton.addEventListener(
+        "click",
+        () => {
+          if (currentStage === 1) {
+            startStageTwo();
+          } else {
+            showNextTeaser();
+          }
+        }
+      );
 
       document
         .getElementById("teaserReplay")
-        .addEventListener("click", resetExperience);
+        .addEventListener(
+          "click",
+          resetStageTwo
+        );
 
       soundToggle.addEventListener(
         "click",
@@ -2133,14 +3666,25 @@
       document.addEventListener(
         "visibilitychange",
         () => {
-          if (document.hidden && holding) {
+          if (
+            document.hidden &&
+            holding
+          ) {
             cancelHold();
+          }
+
+          if (
+            document.hidden &&
+            nebulaDragging
+          ) {
+            endNebulaDrag();
           }
         }
       );
 
       resizeCanvas();
       setHoldProgress(0);
+      setProgressStage(1);
       requestAnimationFrame(render);
     })();
   </script>
